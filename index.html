@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>АРХИВ ЭНИГМА · ФОТОУЛИКИ</title>
+    <style>
+        body {
+            background-color: #0a0f1e;
+            font-family: 'Courier New', monospace;
+            color: #b0e0ff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+        }
+        .terminal {
+            background: #03070e;
+            border: 1px solid #1e3b5c;
+            padding: 40px;
+            width: 700px;
+            box-shadow: 0 0 20px rgba(0,180,255,0.2);
+            border-radius: 8px;
+        }
+        h1 {
+            font-size: 24px;
+            color: #87ceeb;
+            border-bottom: 1px solid #2c5f73;
+            padding-bottom: 15px;
+            margin-top: 0;
+            letter-spacing: 2px;
+        }
+        h2 {
+            font-size: 18px;
+            color: #9acdcd;
+            margin: 20px 0 10px 0;
+            border-left: 3px solid #2f7f8f;
+            padding-left: 10px;
+        }
+        .field {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            font-size: 15px;
+            margin-bottom: 6px;
+            color: #9acdcd;
+        }
+        input, .admin-area {
+            width: 100%;
+            background: #10161f;
+            border: 1px solid #2e4e5e;
+            padding: 12px;
+            color: #e0ffff;
+            font-family: 'Courier New', monospace;
+            font-size: 16px;
+            box-sizing: border-box;
+            outline: none;
+        }
+        input:focus {
+            border-color: #3fa0b5;
+            background: #0c121c;
+        }
+        
+        /* АДМИН-ПАНЕЛЬ */
+        .admin-panel {
+            background: #0c141f;
+            border: 1px solid #3e6d80;
+            padding: 20px;
+            margin-bottom: 30px;
+            border-radius: 4px;
+        }
+        .admin-area {
+            border: 1px dashed #2f7f8f;
+            text-align: center;
+            cursor: pointer;
+            background: #0a141c;
+            padding: 30px 20px;
+            font-size: 16px;
+            color: #87ceeb;
+            transition: 0.3s;
+        }
+        .admin-area:hover {
+            background: #1e3a4a;
+            border-color: #60b5c0;
+        }
+        .preview-image {
+            max-width: 100%;
+            max-height: 200px;
+            margin-top: 15px;
+            border: 1px solid #2f7f8f;
+            border-radius: 4px;
+            display: none;
+        }
+        .preview-image.active {
+            display: block;
+        }
+        
+        /* КНОПКИ */
+        button {
+            background: #132b36;
+            border: 1px solid #2f7f8f;
+            color: #caf0fe;
+            padding: 12px 24px;
+            font-size: 18px;
+            font-family: 'Courier New', monospace;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 15px;
+            font-weight: bold;
+            letter-spacing: 3px;
+            transition: 0.3s;
+        }
+        button:hover {
+            background: #1e4452;
+            border-color: #60b5c0;
+            box-shadow: 0 0 8px #1e7f8f;
+        }
+        .admin-btn {
+            background: #362b4a;
+            border-color: #6f5f8f;
+        }
+        .admin-btn:hover {
+            background: #4a3a63;
+            border-color: #9f7fbf;
+        }
+        
+        /* ВЫВОД */
+        #output {
+            margin-top: 30px;
+            padding: 20px;
+            background: #0d141c;
+            border-left: 4px solid #3e6d80;
+            font-size: 15px;
+            min-height: 100px;
+            word-wrap: break-word;
+            color: #b4d4d4;
+        }
+        .error {
+            color: #ffa0a0;
+            border-left-color: #a04c4c;
+        }
+        .success {
+            color: #b0f0b0;
+            border-left-color: #4fa84f;
+        }
+        .evidence-image {
+            max-width: 100%;
+            max-height: 400px;
+            margin-top: 15px;
+            border: 2px solid #2f7f8f;
+            border-radius: 4px;
+            box-shadow: 0 0 15px rgba(0,180,255,0.3);
+        }
+        .system-info {
+            color: #709090;
+            font-size: 13px;
+            margin-top: 10px;
+            font-style: italic;
+        }
+        .cursor {
+            display: inline-block;
+            width: 8px;
+            height: 15px;
+            background: #6f9f9f;
+            animation: blink 1s infinite;
+            margin-left: 2px;
+        }
+        @keyframes blink {
+            0%, 50% { opacity: 1; }
+            51%, 100% { opacity: 0; }
+        }
+        .admin-badge {
+            background: #4a3a63;
+            color: #e0c0ff;
+            padding: 4px 10px;
+            font-size: 12px;
+            border-radius: 3px;
+            display: inline-block;
+            margin-left: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="terminal">
+        <h1>⚡ АРХИВ "ЭНИГМА" · ФОТОТЕКА УЛИК</h1>
+        <div style="color:#95afb0; margin-bottom:25px; font-size:14px;">
+            [СИСТЕМА: Двухрежимный доступ. Админ → загрузка фото. Игроки → просмотр улик.]
+        </div>
+        
+        <!-- =========== АДМИН-ПАНЕЛЬ (ТОЛЬКО ДЛЯ ТЕБЯ) =========== -->
+        <div class="admin-panel">
+            <div style="display: flex; align-items: center; margin-bottom: 15px;">
+                <span style="color:#c0a0ff; font-size: 18px;">👑 АДМИНИСТРИРОВАНИЕ</span>
+                <span class="admin-badge">Только для создателя</span>
+            </div>
+            
+            <div class="field">
+                <label>🔐 АДМИН-ЛОГИН</label>
+                <input type="text" id="adminLogin" placeholder="admin" value="admin" autocomplete="off">
+            </div>
+            
+            <div class="field">
+                <label>🗝️ АДМИН-ПАРОЛЬ</label>
+                <input type="password" id="adminPassword" placeholder="****" value="enigma2026" autocomplete="off">
+            </div>
+            
+            <div class="field">
+                <label>📸 ЗАГРУЗИТЬ ФОТОУЛИКУ</label>
+                <div class="admin-area" id="adminUploadArea">📁 НАЖМИТЕ ИЛИ ПЕРЕТАЩИТЕ ФОТО СЮДА</div>
+                <input type="file" id="adminFileInput" accept="image/*">
+                <img id="adminPreview" class="preview-image" alt="Предпросмотр">
+                <div id="adminStatus" style="color:#87ceeb; margin-top: 10px;"></div>
+            </div>
+            
+            <button id="adminSaveBtn" class="admin-btn" onclick="adminSavePhoto()">💾 СОХРАНИТЬ УЛИКУ В АРХИВ</button>
+        </div>
+        
+        <!-- =========== ИГРОВОЙ ВХОД (ДЛЯ ТВОИХ ДРУЗЕЙ) =========== -->
+        <div style="border-top: 1px solid #2e4e5e; margin: 30px 0 20px 0;"></div>
+        
+        <div style="display: flex; align-items: center; margin-bottom: 15px;">
+            <span style="color:#87ceeb; font-size: 18px;">🕵️‍♂️ ДОСТУП К УЛИКАМ</span>
+        </div>
+        
+        <div class="field">
+            <label>🔐 ЛОГИН ОПЕРАТИВНИКА</label>
+            <input type="text" id="login" placeholder="watson, moriarty, holmes..." autocomplete="off">
+        </div>
+        
+        <div class="field">
+            <label>🗝️ КОД КАПИТАНА</label>
+            <input type="password" id="password" placeholder="****" autocomplete="off">
+        </div>
+        
+        <button onclick="checkAccess()">▶ ПОЛУЧИТЬ УЛИКУ</button>
+        
+        <!-- =========== ЗДЕСЬ ПОЯВЛЯЕТСЯ УЛИКА =========== -->
+        <div id="output">
+            <span style="color:#709090;">Ожидание ввода логина...</span>
+            <span class="cursor"></span>
+        </div>
+        
+        <div class="system-info" id="systemInfo">
+            🏛️ В архиве сохранено улик: <span id="evidenceCount">0</span>
+        </div>
+    </div>
+
+    <script>
+        // ------------------------------------------------------------
+        // 1. БАЗА ДАННЫХ ИГРОКОВ (ЛОГИН + ПАРОЛЬ)
+        // ------------------------------------------------------------
+        const validCredentials = [
+            ["watson", "1402"],
+            ["moriarty", "1887"],
+            ["holmes", "221b"],
+            ["lestrade", "1895"],
+            ["adler", "1888"]
+        ];
+
+        // ------------------------------------------------------------
+        // 2. ХРАНИЛИЩЕ УЛИК (В БРАУЗЕРЕ)
+        // ------------------------------------------------------------
+        // Загружаем сохраненное фото из localStorage или ставим заглушку
+        let currentEvidence = localStorage.getItem('enigmaEvidence') || '';
+        let evidenceTimestamp = localStorage.getItem('enigmaTimestamp') || '';
+        
+        // ------------------------------------------------------------
+        // 3. ПЕРЕМЕННЫЕ ДЛЯ АДМИНА
+        // ------------------------------------------------------------
+        let uploadedPhotoData = ''; // Данные загруженного фото (base64)
+        
+        // ------------------------------------------------------------
+        // 4. СОСТОЯНИЕ ИГРОВОГО ВХОДА
+        // ------------------------------------------------------------
+        let step = 1;
+        let currentLogin = "";
+
+        // ------------------------------------------------------------
+        // 5. ИНИЦИАЛИЗАЦИЯ ПРИ ЗАГРУЗКЕ
+        // ------------------------------------------------------------
+        document.addEventListener("DOMContentLoaded", function() {
+            updateEvidenceCounter();
+            
+            // Настройка загрузки фото для админа
+            setupAdminUpload();
+            
+            // Настройка звука (опционально)
+            setupTypeSound();
+            
+            // Enter для полей игрока
+            const loginField = document.getElementById("login");
+            const passField = document.getElementById("password");
+            
+            loginField.addEventListener("keypress", function(e) {
+                if (e.key === "Enter") checkAccess();
+            });
+            
+            passField.addEventListener("keypress", function(e) {
+                if (e.key === "Enter") checkAccess();
+            });
+        });
+
+        // ------------------------------------------------------------
+        // 6. АДМИН: ЗАГРУЗКА ФОТО
+        // ------------------------------------------------------------
+        function setupAdminUpload() {
+            const adminFileInput = document.getElementById('adminFileInput');
+            const adminUploadArea = document.getElementById('adminUploadArea');
+            const adminPreview = document.getElementById('adminPreview');
+            
+            // Клик по области
+            adminUploadArea.addEventListener('click', () => {
+                adminFileInput.click();
+            });
+            
+            // Drag & Drop
+            adminUploadArea.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                adminUploadArea.style.background = '#1e4452';
+                adminUploadArea.style.borderColor = '#60b5c0';
+            });
+            
+            adminUploadArea.addEventListener('dragleave', () => {
+                adminUploadArea.style.background = '#0a141c';
+                adminUploadArea.style.borderColor = '#2f7f8f';
+            });
+            
+            adminUploadArea.addEventListener('drop', (e) => {
+                e.preventDefault();
+                adminUploadArea.style.background = '#0a141c';
+                adminUploadArea.style.borderColor = '#2f7f8f';
+                
+                const files = e.dataTransfer.files;
+                if (files.length > 0) {
+                    adminFileInput.files = files;
+                    handleAdminFile(files[0]);
+                }
+            });
+            
+            // Выбор файла
+            adminFileInput.addEventListener('change', (e) => {
+                if (e.target.files.length > 0) {
+                    handleAdminFile(e.target.files[0]);
+                }
+            });
+        }
+        
+        function handleAdminFile(file) {
+            // Проверка, что это изображение
+            if (!file.type.startsWith('image/')) {
+                document.getElementById('adminStatus').innerHTML = '❌ Нужно загрузить изображение!';
+                document.getElementById('adminStatus').style.color = '#ffa0a0';
+                return;
+            }
+            
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                uploadedPhotoData = e.target.result;
+                
+                // Показываем предпросмотр
+                const preview = document.getElementById('adminPreview');
+                preview.src = uploadedPhotoData;
+                preview.classList.add('active');
+                
+                document.getElementById('adminStatus').innerHTML = `✅ Загружено: ${file.name} (${(file.size/1024).toFixed(1)} КБ)`;
+                document.getElementById('adminStatus').style.color = '#87ceeb';
+            };
+            reader.readAsDataURL(file);
+        }
+        
+        // ------------------------------------------------------------
+        // 7. АДМИН: СОХРАНЕНИЕ УЛИКИ В АРХИВ
+        // ------------------------------------------------------------
+        function adminSavePhoto() {
+            const adminLogin = document.getElementById('adminLogin').value.trim();
+            const adminPass = document.getElementById('adminPassword').value.trim();
+            
+            // Проверка админ-доступа (свои данные можешь поменять)
+            if (adminLogin === 'admin' && adminPass === 'enigma2026') {
+                if (!uploadedPhotoData) {
+                    document.getElementById('adminStatus').innerHTML = '❌ Сначала загрузите фото!';
+                    document.getElementById('adminStatus').style.color = '#ffa0a0';
+                    return;
+                }
+                
+                // Сохраняем в localStorage
+                localStorage.setItem('enigmaEvidence', uploadedPhotoData);
+                
+                const now = new Date();
+                const timestamp = now.toLocaleString('ru-RU');
+                localStorage.setItem('enigmaTimestamp', timestamp);
+                
+                currentEvidence = uploadedPhotoData;
+                evidenceTimestamp = timestamp;
+                
+                document.getElementById('adminStatus').innerHTML = `✅ УЛИКА СОХРАНЕНА! Время: ${timestamp}`;
+                document.getElementById('adminStatus').style.color = '#a0f0a0';
+                
+                updateEvidenceCounter();
+                
+                // Очищаем предпросмотр после сохранения (можно оставить)
+                // uploadedPhotoData = '';
+                // document.getElementById('adminPreview').classList.remove('active');
+                
+                // Звуковой сигнал
+                playTypeSound();
+            } else {
+                document.getElementById('adminStatus').innerHTML = '❌ Ошибка доступа! Неверные админ-данные.';
+                document.getElementById('adminStatus').style.color = '#ffa0a0';
+            }
+        }
+        
+        // ------------------------------------------------------------
+        // 8. СЧЕТЧИК УЛИК
+        // ------------------------------------------------------------
+        function updateEvidenceCounter() {
+            const countSpan = document.getElementById('evidenceCount');
+            if (currentEvidence) {
+                countSpan.innerHTML = '1 (последняя: ' + (evidenceTimestamp || 'неизвестно') + ')';
+            } else {
+                countSpan.innerHTML = '0';
+            }
+        }
+        
+        // ------------------------------------------------------------
+        // 9. ИГРОКИ: ПРОВЕРКА ДОСТУПА
+        // ------------------------------------------------------------
+        function checkAccess() {
+            const loginField = document.getElementById("login");
+            const passField = document.getElementById("password");
+            const outputDiv = document.getElementById("output");
+
+            const login = loginField.value.trim();
+            const password = passField.value.trim();
+
+            // ШАГ 1: ВВОД ЛОГИНА
+            if (step === 1) {
+                const match = validCredentials.find(pair => pair[0] === login);
+                if (match) {
+                    currentLogin = login;
+                    step = 2;
+                    passField.value = "";
+                    outputDiv.innerHTML = `
+                        <span style="color:#ffe08c;">🔑 КАПИТАН, ПОДТВЕРДИТЕ</span><br>
+                        Логин «${login}» принят. Введите персональный код капитана.
+                    `;
+                    outputDiv.className = "success";
+                    passField.focus();
+                } else {
+                    outputDiv.innerHTML = `
+                        <span style="color:#ffb0b0;">⛔ ДОСТУП ЗАПРЕЩЁН</span><br>
+                        Логин «${login}» не найден в базе.
+                    `;
+                    outputDiv.className = "error";
+                    step = 1;
+                    currentLogin = "";
+                    loginField.value = "";
+                    passField.value = "";
+                    loginField.focus();
+                }
+                return;
+            }
+
+            // ШАГ 2: ВВОД КОДА КАПИТАНА
+            if (step === 2) {
+                const match = validCredentials.find(pair => pair[0] === currentLogin && pair[1] === password);
+                if (match) {
+                    // УСПЕШНЫЙ ВХОД - ПОКАЗЫВАЕМ УЛИКУ
+                    let outputHTML = `
+                        <span style="color:#a0f0a0;">▮▮ ДОСТУП РАЗРЕШЕН ▮▮</span><br>
+                        Оперативник: ${match[0].toUpperCase()}<br>
+                        Код доступа: ${match[1]}<br><br>
+                        <span style="color:#d0e0ff;">📁 МАТЕРИАЛЫ ДЕЛА №${match[1]}-${match[0].toUpperCase()}:</span><br>
+                    `;
+                    
+                    // Если есть улика - показываем фото
+                    if (currentEvidence) {
+                        outputHTML += `
+                            <br>
+                            <span style="color:#87ceeb;">🖼️ ФОТОУЛИКА (загружена ${evidenceTimestamp || 'неизвестно'}):</span><br>
+                            <img src="${currentEvidence}" class="evidence-image" alt="Фотоулика">
+                            <br><br>
+                            <span style="color:#b0f0b0;">✓ Файл получен из защищенного архива</span>
+                        `;
+                    } else {
+                        outputHTML += `
+                            <br>
+                            <span style="color:#ffd070;">⚠️ В архиве пока нет фотоулик.</span><br>
+                            <span style="color:#709090;">Ожидайте загрузки материалов от администратора.</span>
+                        `;
+                    }
+                    
+                    outputDiv.innerHTML = outputHTML;
+                    outputDiv.className = "success";
+                    
+                    // Сбрасываем для новой попытки
+                    step = 1;
+                    currentLogin = "";
+                    loginField.value = "";
+                    passField.value = "";
+                    
+                } else {
+                    outputDiv.innerHTML = `
+                        <span style="color:#ff8080;">⚠️ КРИТИЧЕСКАЯ ОШИБКА</span><br>
+                        Неверный код капитана для «${currentLogin}».<br>
+                        <span style="color:#b09090;">Сессия аннулирована. Введите логин заново.</span>
+                    `;
+                    outputDiv.className = "error";
+                    step = 1;
+                    currentLogin = "";
+                    loginField.value = "";
+                    passField.value = "";
+                    loginField.focus();
+                }
+            }
+        }
+
+        // ------------------------------------------------------------
+        // 10. ЗВУК ПИШУЩЕЙ МАШИНКИ (ДЛЯ АТМОСФЕРЫ)
+        // ------------------------------------------------------------
+        function playTypeSound() {
+            try {
+                const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                const oscillator = audioCtx.createOscillator();
+                const gainNode = audioCtx.createGain();
+                
+                oscillator.type = 'sawtooth';
+                oscillator.frequency.setValueAtTime(70, audioCtx.currentTime);
+                
+                gainNode.gain.setValueAtTime(0.02, audioCtx.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.05);
+                
+                oscillator.connect(gainNode);
+                gainNode.connect(audioCtx.destination);
+                
+                oscillator.start();
+                oscillator.stop(audioCtx.currentTime + 0.04);
+                
+                if (audioCtx.state === 'suspended') {
+                    audioCtx.resume();
+                }
+            } catch(e) {
+                // Тишина — тоже атмосферно
+            }
+        }
+        
+        function setupTypeSound() {
+            // Звук при вводе в поля игрока
+            const loginField = document.getElementById("login");
+            const passField = document.getElementById("password");
+            loginField.addEventListener("keydown", playTypeSound);
+            passField.addEventListener("keydown", playTypeSound);
+            
+            // Звук при клике на кнопки
+            document.querySelector("button[onclick='checkAccess()']").addEventListener("click", playTypeSound);
+            document.getElementById("adminSaveBtn").addEventListener("click", playTypeSound);
+        }
+    </script>
+</body>
+</html>
