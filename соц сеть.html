@@ -1,0 +1,973 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Мой Мир · Социальная сеть</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .app-container {
+            width: 1200px;
+            max-width: 100%;
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border-radius: 32px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        /* Верхняя панель */
+        .top-bar {
+            background: rgba(15, 23, 42, 0.8);
+            backdrop-filter: blur(8px);
+            padding: 16px 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .logo-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.5rem;
+        }
+
+        .logo-text {
+            color: white;
+            font-size: 1.5rem;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 24px;
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .time {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+        }
+
+        /* Навигация */
+        .nav-tabs {
+            display: flex;
+            gap: 4px;
+            padding: 0 24px;
+            background: rgba(15, 23, 42, 0.6);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .nav-tab {
+            padding: 16px 24px;
+            color: rgba(255, 255, 255, 0.6);
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            border-bottom: 3px solid transparent;
+        }
+
+        .nav-tab:hover {
+            color: white;
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .nav-tab.active {
+            color: #3b82f6;
+            border-bottom-color: #3b82f6;
+            background: rgba(59, 130, 246, 0.1);
+        }
+
+        /* Основной контент */
+        .content {
+            padding: 32px;
+            min-height: 600px;
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        /* Страницы */
+        .page {
+            display: none;
+            animation: fadeIn 0.3s;
+        }
+
+        .page.active-page {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Профиль */
+        .profile-header {
+            background: linear-gradient(135deg, #1e293b, #0f172a);
+            border-radius: 24px;
+            padding: 32px;
+            display: flex;
+            gap: 32px;
+            margin-bottom: 24px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .profile-avatar {
+            width: 120px;
+            height: 120px;
+            background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+            border-radius: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+            border: 4px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .profile-info {
+            flex: 1;
+        }
+
+        .profile-name {
+            font-size: 2rem;
+            font-weight: 700;
+            color: white;
+            margin-bottom: 8px;
+        }
+
+        .profile-details {
+            color: rgba(255, 255, 255, 0.7);
+            line-height: 1.8;
+        }
+
+        .profile-status {
+            display: inline-block;
+            background: rgba(34, 197, 94, 0.2);
+            color: #4ade80;
+            padding: 6px 16px;
+            border-radius: 20px;
+            margin-top: 12px;
+            font-size: 0.9rem;
+            border: 1px solid rgba(74, 222, 128, 0.3);
+        }
+
+        /* Сообщения */
+        .messages-layout {
+            display: grid;
+            grid-template-columns: 300px 1fr;
+            gap: 24px;
+        }
+
+        .dialogue-list {
+            background: rgba(15, 23, 42, 0.6);
+            border-radius: 20px;
+            padding: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .dialogue-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+            color: rgba(255, 255, 255, 0.7);
+            margin-bottom: 4px;
+        }
+
+        .dialogue-item:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+        }
+
+        .dialogue-item.active {
+            background: rgba(59, 130, 246, 0.2);
+            color: white;
+            border-left: 4px solid #3b82f6;
+        }
+
+        .dialogue-avatar {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .dialogue-name {
+            font-weight: 500;
+        }
+
+        .dialogue-preview {
+            font-size: 0.85rem;
+            color: rgba(255, 255, 255, 0.4);
+        }
+
+        .messages-area {
+            background: rgba(15, 23, 42, 0.8);
+            border-radius: 20px;
+            padding: 24px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            max-height: 500px;
+            overflow-y: auto;
+        }
+
+        .message {
+            margin-bottom: 20px;
+            max-width: 70%;
+            animation: slideIn 0.3s;
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(var(--direction, 0)); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        .message.incoming {
+            margin-right: auto;
+        }
+
+        .message.outgoing {
+            margin-left: auto;
+        }
+
+        .message-bubble {
+            padding: 12px 16px;
+            border-radius: 18px;
+            position: relative;
+        }
+
+        .incoming .message-bubble {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: white;
+        }
+
+        .outgoing .message-bubble {
+            background: #3b82f6;
+            color: white;
+        }
+
+        .message-sender {
+            font-size: 0.8rem;
+            color: rgba(255, 255, 255, 0.5);
+            margin-bottom: 4px;
+        }
+
+        .message-time {
+            font-size: 0.7rem;
+            color: rgba(255, 255, 255, 0.3);
+            margin-top: 4px;
+            text-align: right;
+        }
+
+        .year-tag {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 0.7rem;
+            margin-left: 8px;
+        }
+
+        /* Карточки друзей */
+        .friends-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 16px;
+        }
+
+        .friend-card {
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 16px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            transition: all 0.2s;
+        }
+
+        .friend-card:hover {
+            transform: translateY(-2px);
+            background: rgba(15, 23, 42, 0.8);
+        }
+
+        .friend-avatar {
+            width: 56px;
+            height: 56px;
+            background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+            border-radius: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+        }
+
+        .friend-info {
+            flex: 1;
+        }
+
+        .friend-name {
+            color: white;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .friend-meta {
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 0.85rem;
+        }
+
+        .friend-badge {
+            background: rgba(239, 68, 68, 0.2);
+            color: #f87171;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+        }
+
+        /* Альбомы */
+        .albums-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 20px;
+        }
+
+        .album-card {
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .album-card:hover {
+            transform: translateY(-2px);
+            background: rgba(15, 23, 42, 0.8);
+        }
+
+        .album-icon {
+            font-size: 3rem;
+            margin-bottom: 12px;
+        }
+
+        .album-title {
+            color: white;
+            font-weight: 500;
+            margin-bottom: 4px;
+        }
+
+        .album-count {
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 0.85rem;
+        }
+
+        .album-card.locked {
+            opacity: 0.7;
+            position: relative;
+        }
+
+        .album-card.locked::after {
+            content: "🔒";
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            font-size: 1.2rem;
+        }
+
+        /* Новости */
+        .post {
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 20px;
+            margin-bottom: 16px;
+        }
+
+        .post-header {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+
+        .post-avatar {
+            width: 48px;
+            height: 48px;
+            background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+            border-radius: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+        }
+
+        .post-author {
+            color: white;
+            font-weight: 600;
+        }
+
+        .post-date {
+            color: rgba(255, 255, 255, 0.4);
+            font-size: 0.85rem;
+        }
+
+        .post-content {
+            color: rgba(255, 255, 255, 0.8);
+            line-height: 1.6;
+            padding-left: 60px;
+        }
+
+        /* Архив */
+        .archive-note {
+            background: rgba(59, 130, 246, 0.1);
+            border-left: 6px solid #3b82f6;
+            padding: 20px;
+            border-radius: 12px;
+            color: white;
+            margin-bottom: 20px;
+        }
+
+        /* Блок взлома */
+        .hack-panel {
+            background: rgba(15, 23, 42, 0.9);
+            border-radius: 16px;
+            padding: 24px;
+            margin-top: 24px;
+            border: 2px solid rgba(59, 130, 246, 0.3);
+        }
+
+        .hint-box {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 16px;
+            border-radius: 12px;
+            color: rgba(255, 255, 255, 0.7);
+            font-family: monospace;
+            margin: 16px 0;
+        }
+
+        .code-input {
+            background: rgba(0, 0, 0, 0.3);
+            border: 2px solid rgba(59, 130, 246, 0.5);
+            padding: 12px 16px;
+            color: white;
+            border-radius: 12px;
+            width: 200px;
+            font-size: 1rem;
+        }
+
+        .code-input:focus {
+            outline: none;
+            border-color: #3b82f6;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+            border: none;
+            padding: 12px 24px;
+            color: white;
+            font-weight: 600;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px -10px #3b82f6;
+        }
+
+        .success-message {
+            background: rgba(34, 197, 94, 0.2);
+            border: 2px solid #4ade80;
+            color: #4ade80;
+            padding: 12px;
+            border-radius: 12px;
+            margin-top: 16px;
+            display: none;
+        }
+
+        /* Футер */
+        .footer {
+            padding: 20px 32px;
+            background: rgba(15, 23, 42, 0.8);
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            color: rgba(255, 255, 255, 0.4);
+            font-size: 0.9rem;
+            display: flex;
+            justify-content: space-between;
+        }
+    </style>
+</head>
+<body>
+<div class="app-container">
+    
+    <!-- Верхняя панель -->
+    <div class="top-bar">
+        <div class="logo">
+            <div class="logo-icon">🌐</div>
+            <div class="logo-text">Мой Мир</div>
+        </div>
+        <div class="user-info">
+            <span>Ольга Каллен</span>
+            <span class="time">13.10.2025 15:43</span>
+        </div>
+    </div>
+
+    <!-- Навигация -->
+    <div class="nav-tabs">
+        <div class="nav-tab active" data-page="profile">📋 Профиль</div>
+        <div class="nav-tab" data-page="messages">💬 Сообщения</div>
+        <div class="nav-tab" data-page="friends">👥 Друзья</div>
+        <div class="nav-tab" data-page="photos">📸 Фото</div>
+        <div class="nav-tab" data-page="news">📰 Новости</div>
+        <div class="nav-tab" data-page="archive">📁 Архив</div>
+    </div>
+
+    <!-- Контент -->
+    <div class="content">
+        
+        <!-- Страница профиля -->
+        <div class="page active-page" id="profile">
+            <div class="profile-header">
+                <div class="profile-avatar">👩</div>
+                <div class="profile-info">
+                    <div class="profile-name">Ольга Каллен</div>
+                    <div class="profile-details">
+                        <div>📍 Редмонд, Центральная 24 · Магазин "Элен"</div>
+                        <div>🎂 14 мая 1971 (54 года)</div>
+                        <div>📅 На сайте с 12 марта 2009</div>
+                        <div>📧 elen.redmond@mail.ru</div>
+                        <div>📞 +7 (903) 555-12-34</div>
+                    </div>
+                    <div class="profile-status">🟢 была в сети 2 часа назад</div>
+                </div>
+            </div>
+
+            <div style="background: rgba(15, 23, 42, 0.6); border-radius: 20px; padding: 24px; border: 1px solid rgba(255,255,255,0.1);">
+                <h3 style="color: white; margin-bottom: 16px;">📋 Последние записи</h3>
+                
+                <div class="post">
+                    <div class="post-header">
+                        <div class="post-avatar">👩</div>
+                        <div>
+                            <div class="post-author">Лиза Каллен</div>
+                            <div class="post-date">10 октября 2025</div>
+                        </div>
+                    </div>
+                    <div class="post-content">
+                        Мам, завтра заеду после обеда. Есть разговор.
+                    </div>
+                </div>
+
+                <div class="post">
+                    <div class="post-header">
+                        <div class="post-avatar">👨</div>
+                        <div>
+                            <div class="post-author">Лео Каллен</div>
+                            <div class="post-date">8 октября 2025</div>
+                        </div>
+                    </div>
+                    <div class="post-content">
+                        Ольга, спасибо за платье. Лиза будет рада.
+                    </div>
+                </div>
+
+                <div class="post">
+                    <div class="post-header">
+                        <div class="post-avatar">👴</div>
+                        <div>
+                            <div class="post-author">Борис Иванов</div>
+                            <div class="post-date">5 октября 2025</div>
+                        </div>
+                    </div>
+                    <div class="post-content">
+                        Ольга, зайди вечером в дворницкую. Надо поговорить.
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Страница сообщений -->
+        <div class="page" id="messages">
+            <div class="messages-layout">
+                <!-- Список диалогов -->
+                <div class="dialogue-list">
+                    <div class="dialogue-item active" data-dialogue="liza">
+                        <div class="dialogue-avatar">👩</div>
+                        <div>
+                            <div class="dialogue-name">Лиза (дочь)</div>
+                            <div class="dialogue-preview">Мам, я нашла...</div>
+                        </div>
+                    </div>
+                    <div class="dialogue-item" data-dialogue="leo">
+                        <div class="dialogue-avatar">👨</div>
+                        <div>
+                            <div class="dialogue-name">Лео (зять)</div>
+                            <div class="dialogue-preview">Ольга, платье купил...</div>
+                        </div>
+                    </div>
+                    <div class="dialogue-item" data-dialogue="boris" id="boris-dialogue-btn">
+                        <div class="dialogue-avatar">👴</div>
+                        <div>
+                            <div class="dialogue-name">Борис (дворник)</div>
+                            <div class="dialogue-preview">🔒 доступ ограничен</div>
+                        </div>
+                    </div>
+                    <div class="dialogue-item" data-dialogue="suppliers">
+                        <div class="dialogue-avatar">🏢</div>
+                        <div>
+                            <div class="dialogue-name">Поставщики</div>
+                            <div class="dialogue-preview">Новая коллекция...</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Область сообщений -->
+                <div class="messages-area" id="messages-area">
+                    <!-- Сообщения будут подставляться через JS -->
+                </div>
+            </div>
+
+            <!-- Панель взлома -->
+            <div class="hack-panel">
+                <h3 style="color: white; margin-bottom: 16px;">🔐 Доступ к архиву сообщений</h3>
+                <p style="color: rgba(255,255,255,0.7); margin-bottom: 16px;">Для просмотра скрытой переписки введите код доступа:</p>
+                
+                <div style="display: flex; gap: 12px; align-items: center; flex-wrap: wrap;">
+                    <input type="text" class="code-input" id="codeInput" placeholder="****" maxlength="4">
+                    <button class="btn" id="unlockBtn">Разблокировать</button>
+                </div>
+
+                <div class="hint-box">
+                    💡 Подсказка: код — год, когда исчез Илья Каллен
+                </div>
+
+                <div class="success-message" id="unlockSuccess">
+                    ✓ Доступ получен! Теперь вы можете читать переписку с Борисом (2015-2025)
+                </div>
+            </div>
+        </div>
+
+        <!-- Страница друзей -->
+        <div class="page" id="friends">
+            <h2 style="color: white; margin-bottom: 24px;">👥 Друзья (34)</h2>
+            <div class="friends-grid">
+                <div class="friend-card">
+                    <div class="friend-avatar">👨</div>
+                    <div class="friend-info">
+                        <div class="friend-name">Лео Каллен</div>
+                        <div class="friend-meta">в друзьях с 2018</div>
+                    </div>
+                </div>
+                <div class="friend-card">
+                    <div class="friend-avatar">👩</div>
+                    <div class="friend-info">
+                        <div class="friend-name">Лиза Каллен</div>
+                        <div class="friend-meta">дочь</div>
+                    </div>
+                </div>
+                <div class="friend-card">
+                    <div class="friend-avatar">👴</div>
+                    <div class="friend-info">
+                        <div class="friend-name">Борис Иванов</div>
+                        <div class="friend-meta">в друзьях с 2015</div>
+                    </div>
+                    <div class="friend-badge">скрыт</div>
+                </div>
+                <div class="friend-card">
+                    <div class="friend-avatar">👨</div>
+                    <div class="friend-info">
+                        <div class="friend-name">Семен Градов</div>
+                        <div class="friend-meta">в друзьях с 2024</div>
+                    </div>
+                </div>
+                <div class="friend-card" style="opacity: 0.6;">
+                    <div class="friend-avatar">👤</div>
+                    <div class="friend-info">
+                        <div class="friend-name">Илья Каллен</div>
+                        <div class="friend-meta">профиль удален · 2015</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Страница фото -->
+        <div class="page" id="photos">
+            <h2 style="color: white; margin-bottom: 24px;">📸 Фотоальбомы</h2>
+            <div class="albums-grid">
+                <div class="album-card">
+                    <div class="album-icon">📁</div>
+                    <div class="album-title">Семья</div>
+                    <div class="album-count">12 фото</div>
+                </div>
+                <div class="album-card">
+                    <div class="album-icon">📁</div>
+                    <div class="album-title">Магазин "Элен"</div>
+                    <div class="album-count">8 фото</div>
+                </div>
+                <div class="album-card locked">
+                    <div class="album-icon">📁</div>
+                    <div class="album-title">Старые фото</div>
+                    <div class="album-count">2009-2015</div>
+                </div>
+                <div class="album-card locked">
+                    <div class="album-icon">📁</div>
+                    <div class="album-title">Башня</div>
+                    <div class="album-count">2015</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Страница новостей -->
+        <div class="page" id="news">
+            <h2 style="color: white; margin-bottom: 24px;">📰 Новости</h2>
+            
+            <div class="post">
+                <div class="post-header">
+                    <div class="post-avatar">👩</div>
+                    <div>
+                        <div class="post-author">Лиза Каллен</div>
+                        <div class="post-date">11 октября 2025</div>
+                    </div>
+                </div>
+                <div class="post-content">
+                    Завтра пойду в башню. Надо с этим покончить.
+                </div>
+            </div>
+
+            <div class="post">
+                <div class="post-header">
+                    <div class="post-avatar">👨</div>
+                    <div>
+                        <div class="post-author">Лео Каллен</div>
+                        <div class="post-date">9 октября 2025</div>
+                    </div>
+                </div>
+                <div class="post-content">
+                    Лиза какая-то странная в последнее время. Надеюсь, всё хорошо.
+                </div>
+            </div>
+        </div>
+
+        <!-- Страница архива -->
+        <div class="page" id="archive">
+            <div class="archive-note">
+                <h3 style="color: #3b82f6; margin-bottom: 8px;">📁 Архивные материалы 2015 года</h3>
+                <p style="color: rgba(255,255,255,0.8);">Для доступа к полному архиву используйте код в разделе "Сообщения"</p>
+            </div>
+
+            <div style="background: rgba(15,23,42,0.6); border-radius: 20px; padding: 24px;">
+                <h4 style="color: white; margin-bottom: 16px;">Последние архивные записи:</h4>
+                
+                <div class="post">
+                    <div class="post-header">
+                        <div class="post-avatar">👤</div>
+                        <div>
+                            <div class="post-author">Илья Каллен</div>
+                            <div class="post-date">22 октября 2015 · 19:23</div>
+                        </div>
+                    </div>
+                    <div class="post-content">
+                        Ольга, у меня есть ваш снимок. Надо поговорить.
+                    </div>
+                </div>
+
+                <div class="post">
+                    <div class="post-header">
+                        <div class="post-avatar">👩</div>
+                        <div>
+                            <div class="post-author">Ольга Каллен</div>
+                            <div class="post-date">22 октября 2015 · 19:30</div>
+                        </div>
+                    </div>
+                    <div class="post-content">
+                        Приходи вечером к башне. Разберёмся.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Футер -->
+    <div class="footer">
+        <span>Мой Мир · Социальная сеть</span>
+        <span>IP: 192.168.1.45 · Сеанс: 7821-AA</span>
+    </div>
+</div>
+
+<script>
+    // Переключение вкладок
+    const tabs = document.querySelectorAll('.nav-tab');
+    const pages = document.querySelectorAll('.page');
+
+    tabs.forEach(tab => {
+        tab.addEventListener('click', function() {
+            // Деактивируем все вкладки
+            tabs.forEach(t => t.classList.remove('active'));
+            this.classList.add('active');
+
+            // Показываем нужную страницу
+            const pageId = this.getAttribute('data-page');
+            pages.forEach(page => page.classList.remove('active-page'));
+            document.getElementById(pageId).classList.add('active-page');
+        });
+    });
+
+    // Данные сообщений
+    const messages = {
+        liza: [
+            { type: 'incoming', sender: 'Лиза', text: 'Мам, привет. Заеду завтра.', time: '10.10.2025 14:22' },
+            { type: 'outgoing', sender: 'Ольга', text: 'Хорошо, буду ждать. Платье уже пришло.', time: '10.10.2025 14:25' },
+            { type: 'incoming', sender: 'Лиза', text: 'Мам, я нашла что-то в старых вещах Лео. Это связано с тобой.', time: '11.10.2025 09:12' },
+            { type: 'outgoing', sender: 'Ольга', text: 'Не пиши об этом. При встрече поговорим.', time: '11.10.2025 09:15' }
+        ],
+        leo: [
+            { type: 'incoming', sender: 'Лео', text: 'Ольга, платье купил. Заберу в пятницу.', time: '08.10.2025 18:03' },
+            { type: 'outgoing', sender: 'Ольга', text: 'Хорошо, Лео. Упакую.', time: '08.10.2025 18:10' },
+            { type: 'incoming', sender: 'Лео', text: 'Ольга, Лиза какая-то странная в последнее время. Она с вами говорила?', time: '09.10.2025 20:45' },
+            { type: 'outgoing', sender: 'Ольга', text: 'Нет. Думаю, это творческий кризис.', time: '09.10.2025 20:50' }
+        ],
+        boris: [
+            { type: 'incoming', sender: 'Борис', text: 'Ольга, я всё сделал. Никто не найдет.', time: '23.10.2015 01:15', year: '2015' },
+            { type: 'outgoing', sender: 'Ольга', text: 'Молчи. Забудь это имя. Ты меня понял?', time: '23.10.2015 01:20', year: '2015' },
+            { type: 'incoming', sender: 'Борис', text: 'Я уволился с реставрации. Буду просто дворником.', time: '25.10.2015 10:33', year: '2015' },
+            { type: 'outgoing', sender: 'Ольга', text: 'Так лучше. Никому ни слова. Никогда.', time: '25.10.2015 10:40', year: '2015' },
+            { type: 'incoming', sender: 'Борис', text: 'Там в башне никто не ходит. Всё тихо.', time: '12.04.2016 22:10', year: '2016' },
+            { type: 'outgoing', sender: 'Ольга', text: 'И не вздумай туда соваться.', time: '12.04.2016 22:15', year: '2016' },
+            { type: 'incoming', sender: 'Борис', text: 'Ольга, а если найдут?', time: '03.09.2020 23:40', year: '2020' },
+            { type: 'outgoing', sender: 'Ольга', text: 'Не найдут. Там глубоко. Молчи.', time: '03.09.2020 23:45', year: '2020' },
+            { type: 'incoming', sender: 'Борис', text: 'Ольга, надо поговорить. Про башню.', time: '05.10.2025 23:15' },
+            { type: 'outgoing', sender: 'Ольга', text: 'Не пиши мне об этом. Всё кончено.', time: '05.10.2025 23:20' },
+            { type: 'incoming', sender: 'Борис', text: 'Лиза ходит вокруг башни. Она что-то знает. Я видел её там вчера вечером.', time: '09.10.2025 22:07' },
+            { type: 'outgoing', sender: 'Ольга', text: 'Молчи. Просто молчи. Я придумаю.', time: '09.10.2025 22:10' },
+            { type: 'incoming', sender: 'Борис', text: 'Если она заговорит — нам конец. Я не хочу назад в тюрьму. Ты обещала, что никто не узнает.', time: '11.10.2025 00:32' },
+            { type: 'outgoing', sender: 'Ольга', text: 'Замолчи. Решим. Встретимся у башни в субботу ночью.', time: '11.10.2025 00:35' },
+            { type: 'incoming', sender: 'Борис', text: 'Приду. Только приходи одна.', time: '11.10.2025 00:40' }
+        ],
+        suppliers: [
+            { type: 'incoming', sender: 'Поставщик', text: 'Ольга, новая коллекция пришла. Ждём.', time: '12.10.2025 09:15' }
+        ]
+    };
+
+    // Флаг разблокировки
+    let borisUnlocked = false;
+
+    // Функция отображения сообщений
+    function showMessages(dialogueId) {
+        const messagesArea = document.getElementById('messages-area');
+        const dialogueMessages = messages[dialogueId];
+        
+        if (!dialogueMessages) return;
+
+        // Для Бориса проверяем разблокировку
+        if (dialogueId === 'boris' && !borisUnlocked) {
+            messagesArea.innerHTML = `
+                <div style="text-align: center; padding: 40px; color: rgba(255,255,255,0.5);">
+                    🔒 Эта переписка скрыта. Введите код доступа для просмотра.
+                </div>
+            `;
+            return;
+        }
+
+        let html = '';
+        dialogueMessages.forEach(msg => {
+            const yearTag = msg.year ? `<span class="year-tag">${msg.year}</span>` : '';
+            html += `
+                <div class="message ${msg.type}" style="--direction: ${msg.type === 'incoming' ? '-10px' : '10px'}">
+                    <div class="message-bubble">
+                        <div class="message-sender">${msg.sender} ${yearTag}</div>
+                        <div>${msg.text}</div>
+                        <div class="message-time">${msg.time}</div>
+                    </div>
+                </div>
+            `;
+        });
+        messagesArea.innerHTML = html;
+    }
+
+    // Переключение диалогов
+    const dialogueItems = document.querySelectorAll('.dialogue-item');
+    dialogueItems.forEach(item => {
+        item.addEventListener('click', function() {
+            // Убираем активный класс у всех
+            dialogueItems.forEach(d => d.classList.remove('active'));
+            this.classList.add('active');
+
+            // Показываем сообщения
+            const dialogueId = this.getAttribute('data-dialogue');
+            showMessages(dialogueId);
+        });
+    });
+
+    // Показываем первый диалог при загрузке
+    showMessages('liza');
+
+    // Код доступа
+    const unlockBtn = document.getElementById('unlockBtn');
+    const codeInput = document.getElementById('codeInput');
+    const unlockSuccess = document.getElementById('unlockSuccess');
+
+    unlockBtn.addEventListener('click', function() {
+        if (codeInput.value === '2015') {
+            borisUnlocked = true;
+            unlockSuccess.style.display = 'block';
+            
+            // Если сейчас открыт диалог с Борисом, обновляем
+            const activeDialogue = document.querySelector('.dialogue-item.active');
+            if (activeDialogue && activeDialogue.getAttribute('data-dialogue') === 'boris') {
+                showMessages('boris');
+            }
+            
+            // Обновляем превью в списке диалогов
+            const borisBtn = document.querySelector('[data-dialogue="boris"] .dialogue-preview');
+            if (borisBtn) {
+                borisBtn.textContent = 'Переписка 2015-2025';
+            }
+        } else {
+            alert('Неверный код!');
+        }
+    });
+
+    // Активация первого диалога
+    document.querySelector('[data-dialogue="liza"]').classList.add('active');
+</script>
+</body>
+</html>
